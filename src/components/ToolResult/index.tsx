@@ -21,6 +21,7 @@ const TOOL_LABELS: Record<string, string> = {
   ask_gift_message: "Preparing your gift card…",
   ask_clarifying_questions: "Gathering your preferences…",
   kapruka_search_products: "Searching catalog…",
+  kapruka_batch_search: "Searching across gift ideas…",
   kapruka_get_product: "Getting product details…",
   kapruka_list_categories: "Loading categories…",
   kapruka_list_delivery_cities: "Finding cities…",
@@ -61,6 +62,14 @@ export default function ToolResultView({
       if (!data?.results) return null;
       const args = part.input as { q?: string };
       return <ProductCarousel products={data.results} query={args?.q} />;
+    }
+
+    case "kapruka_batch_search": {
+      const data = result as unknown as SearchResult;
+      if (!data?.results) return null;
+      const args = part.input as { queries?: string[] };
+      const label = args?.queries?.join(" · ");
+      return <ProductCarousel products={data.results} query={label} />;
     }
 
     case "kapruka_get_product": {

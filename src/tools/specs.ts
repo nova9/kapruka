@@ -200,6 +200,23 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
     realtime: false,
   },
 
+  kapruka_batch_search: {
+    description:
+      "Run 2–4 product searches in parallel and return a single merged, ranked shortlist. Use this instead of kapruka_search_products whenever the user expresses a gifting occasion, recipient, or intent (e.g. 'birthday gift for a 10-year-old boy under 3000 rupees', 'anniversary surprise for my wife that delivers by Friday'). Pick 2–4 queries that cover different product angles the recipient would enjoy. Pass budget_max when the user gives a price limit.",
+    inputSchema: z.object({
+      queries: z
+        .array(z.string().min(3))
+        .min(2)
+        .max(4)
+        .describe("2–4 parallel search queries covering different gift angles"),
+      budget_max: z.number().optional().describe("Maximum price in LKR — applied across all results"),
+      budget_min: z.number().optional().describe("Minimum price in LKR"),
+      limit: z.number().min(4).max(12).optional().default(8).describe("Max items in merged shortlist"),
+    }),
+    execution: "server",
+    realtime: false,
+  },
+
   ask_gift_message: {
     description:
       "Present a beautiful parchment gift-message card in the chat for the user to write their personal note. Use this for gift orders when no gift message is already in the cart context.",

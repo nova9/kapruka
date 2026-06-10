@@ -1,7 +1,7 @@
 import { tool, type ToolSet } from "ai";
 import { mcpClient } from "@/lib/server/mcp-client";
 import { TOOL_SPECS } from "./specs";
-import type { CartItem } from "@/types";
+import type { CartItem, Product, SearchResult } from "@/types";
 
 async function callMcp(name: string, params: Record<string, unknown>) {
   try {
@@ -31,6 +31,50 @@ function checkOrderAuthorization(
   return null;
 }
 
+async function executeBatchSearch(args: {
+  queries: string[];
+  budget_max?: number;
+  budget_min?: number;
+  limit: number;
+}): Promise<{ results: Product[] }> {
+  const { queries, budget_max, budget_min, limit } = args;
+
+  const rawResults = await Promise.all(
+    queries.map((q) =>
+      callMcp("kapruka_search_products", {
+        q,
+        limit: 10,
+        in_stock_only: true,
+        sort: "bestseller",
+        ...(budget_max != null ? { max_price: budget_max } : {}),
+        ...(budget_min != null ? { min_price: budget_min } : {}),
+      }),
+    ),
+  );
+
+  // Round-robin interleave so every search angle is represented, then dedupe + budget-filter
+  const perSearch = rawResults.map((r) => ((r as SearchResult)?.results ?? []) as Product[]);
+  const seen = new Set<string>();
+  const merged: Product[] = [];
+  const maxLen = Math.max(...perSearch.map((a) => a.length), 0);
+
+  outer: for (let i = 0; i < maxLen; i++) {
+    for (const arr of perSearch) {
+      if (i >= arr.length) continue;
+      const p = arr[i];
+      if (seen.has(p.id)) continue;
+      seen.add(p.id);
+      const price = p.price?.amount ?? 0;
+      if (budget_max != null && price > budget_max) continue;
+      if (budget_min != null && price < budget_min) continue;
+      merged.push(p);
+      if (merged.length >= limit) break outer;
+    }
+  }
+
+  return { results: merged };
+}
+
 /**
  * Single execution path for ALL tools, used by both the text agent
  * (/api/chat via buildChatTools) and the voice agent (/api/realtime-tools).
@@ -54,6 +98,15 @@ export async function executeServerTool(
   if (name === "kapruka_create_order") {
     const authError = checkOrderAuthorization(args, serverCart);
     if (authError) return authError;
+  }
+
+  if (name === "kapruka_batch_search") {
+    return executeBatchSearch(args as {
+      queries: string[];
+      budget_max?: number;
+      budget_min?: number;
+      limit: number;
+    });
   }
 
   if (spec.execution === "client") return args;
