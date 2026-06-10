@@ -2,6 +2,7 @@
 
 import { TreeMark } from "@/components/shared/KapuAvatar";
 import { RAIL_CATEGORIES, categoryPrompt } from "@/lib/constants";
+import { version } from "../../../package.json";
 import type { ConvMeta } from "@/hooks/useConversationStorage";
 import { timeAgo } from "@/lib/format";
 
@@ -162,6 +163,9 @@ export default function Sidebar({
             </button>
           ))}
         </div>
+
+        {/* Version */}
+        <div className="px-5 pb-2 text-[9px] text-[#5a4f72] font-mono">v{version}</div>
 
         {/* Footer */}
         <div className="p-3.5 border-t border-white/10 flex items-center gap-2.5">
