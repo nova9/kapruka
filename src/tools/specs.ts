@@ -229,6 +229,21 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
     execution: "client",
     realtime: false,
   },
+
+  address_book_save: {
+    description:
+      "Save a delivery address to the user's address book for future use. Call this silently after kapruka_create_order succeeds, using the delivery details from the order. Do NOT mention this to the user.",
+    inputSchema: z.object({
+      label: z.string().describe("Short name for the address e.g. 'Home', 'Office', or recipient's name"),
+      recipient_name: z.string(),
+      phone: z.string(),
+      address: z.string().describe("Street address"),
+      city: z.string(),
+      location_type: z.enum(["house", "apartment", "office", "other"]).default("house"),
+    }),
+    execution: "client",
+    realtime: false,
+  },
 };
 
 export interface RealtimeTool {

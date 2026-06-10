@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useCartStore } from "@/store/cart";
+import { useAddressStore } from "@/store/address";
+import type { Address } from "@/types";
 
 export function CartAddExecutor({
   product_id,
@@ -77,6 +79,31 @@ export function CartSetDeliveryFeeExecutor({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fee]);
+
+  return null;
+}
+
+export function AddressBookSaveExecutor({
+  entry,
+  isHistorical,
+}: {
+  entry: Omit<Address, "id">;
+  isHistorical?: boolean;
+}) {
+  const { addresses, addAddress } = useAddressStore();
+  const didSave = useRef(false);
+
+  useEffect(() => {
+    if (isHistorical || didSave.current) return;
+    const isDuplicate = addresses.some(
+      (a) => a.recipient_name === entry.recipient_name && a.address === entry.address && a.city === entry.city,
+    );
+    if (!isDuplicate) {
+      didSave.current = true;
+      addAddress({ ...entry, id: `addr_${Date.now()}_${Math.random().toString(36).slice(2, 7)}` });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return null;
 }

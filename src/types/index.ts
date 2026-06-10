@@ -95,3 +95,13 @@ export interface CartItem {
   image_url: string | null;
   icing_text?: string;
 }
+
+export interface Address {
+  id: string;
+  label: string;
+  recipient_name: string;
+  phone: string;
+  address: string;
+  city: string;
+  location_type: "house" | "apartment" | "office" | "other";
+}

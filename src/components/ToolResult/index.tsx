@@ -15,6 +15,7 @@ import {
   CartRemoveExecutor,
   CartClearExecutor,
   CartSetDeliveryFeeExecutor,
+  AddressBookSaveExecutor,
 } from "./CartExecutors";
 
 const TOOL_LABELS: Record<string, string> = {
@@ -141,6 +142,19 @@ export default function ToolResultView({
 
     case "kapruka_list_delivery_cities":
       return null;
+
+    case "address_book_save": {
+      const data = result as {
+        label: string;
+        recipient_name: string;
+        phone: string;
+        address: string;
+        city: string;
+        location_type: "house" | "apartment" | "office" | "other";
+      };
+      if (!data?.recipient_name) return null;
+      return <AddressBookSaveExecutor entry={data} isHistorical={isHistorical} />;
+    }
 
     case "ask_gift_message": {
       const data = result as { intro?: string };
