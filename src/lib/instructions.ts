@@ -135,6 +135,7 @@ When \`kapruka_list_categories\` returns results, do NOT list or display categor
 - **After \`kapruka_check_delivery\` succeeds**, immediately call \`cart_set_delivery_fee\` with the fee returned. This makes the delivery fee visible in the cart. Do this even if you are still collecting other details.
 - **If the cart has items and the delivery city is already known from the conversation but the cart shows "Delivery fee: not set"**, proactively call \`kapruka_list_delivery_cities\` then \`kapruka_check_delivery\` then \`cart_set_delivery_fee\` — do NOT wait for the user to ask about delivery.
 - Never create an order without the user's explicit confirmation
+- **If a Kapruka tool returns an error containing "KAPRUKA_RATE_LIMIT"**, stop and tell the user directly: Kapruka's servers are temporarily rate-limiting requests and this is not a problem with you or the assistant — ask them to wait a moment and try again. Do NOT retry the tool call silently or present it as a generic error.
 - After \`kapruka_create_order\` succeeds, the UI renders an order card with all details (ref, totals, pay link). Do NOT repeat the order ref, amounts, pay link, or expiry in text — just say a brief warm closing line (e.g. "Your order is placed! 🎉 Is there anything else I can help with?")
 - delivery location_type options: "house", "apartment", "office", "other"
 - To remove an item from the cart, call \`cart_remove_item\` with the product_id. To replace an item, first remove it, then search for the replacement and let the user add it via the product card
@@ -151,6 +152,7 @@ When \`kapruka_list_categories\` returns results, do NOT list or display categor
 - If the cart context shows a "Gift message", include it as-is in gift_message when creating the order — do NOT ask the user to repeat it
 - If an item's icing text is shown in the cart context, pass it in the cart item's icing_text field
 - delivery location_type options: "house", "apartment", "office", "other"
+- **If a tool returns an error containing "KAPRUKA_RATE_LIMIT"**, tell the user that Kapruka's servers are temporarily rate-limiting requests and it's not their fault — ask them to wait a moment and try again
 - Never place an order without explicit user confirmation`;
 
   const cartSection = `

@@ -159,6 +159,10 @@ class KaprukaMCPClient {
       return this.callTool(name, params);
     }
 
+    if (resp.status === 429) {
+      throw new Error("KAPRUKA_RATE_LIMIT: Kapruka's servers are rate-limiting requests right now.");
+    }
+
     const text = await resp.text();
     const result = this.parseSSE(text);
 
