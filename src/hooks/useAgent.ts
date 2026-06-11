@@ -32,7 +32,7 @@ export function useAgent() {
   }, [addresses]);
 
   const [chatKey, setChatKey] = useState(0);
-  const { messages, sendMessage, setMessages, status, stop } = useChat({
+  const { messages, sendMessage, setMessages, status, stop, error, regenerate } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     id: String(chatKey),
     onError: (err) => {
@@ -40,6 +40,10 @@ export function useAgent() {
       stop();
     },
   });
+
+  function retry() {
+    regenerate();
+  }
 
   const isStreaming = status === "submitted" || status === "streaming";
 
@@ -113,6 +117,8 @@ export function useAgent() {
     isStreaming,
     send,
     stop,
+    error,
+    retry,
     appendVoiceMessage,
     appendVoiceToolResult,
     conversationId,

@@ -101,7 +101,7 @@ export default function ClarifyingQuestionsCard({ intro, questions, onSend }: Pr
   }
 
   return (
-    <div className="bg-surface rounded-2xl rounded-tl-md shadow-lift overflow-hidden border border-line/50 animate-rise">
+    <div data-testid="clarifying-questions-card" className="bg-surface rounded-2xl rounded-tl-md shadow-lift overflow-hidden border border-line/50 animate-rise">
       {intro && (
         <div className="px-5 pt-5">
           <p className="text-[15px] leading-relaxed text-ink">{intro}</p>

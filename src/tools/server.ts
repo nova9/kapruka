@@ -3,6 +3,23 @@ import { mcpClient } from "@/lib/server/mcp-client";
 import { TOOL_SPECS } from "./specs";
 import type { CartItem, Product, SearchResult } from "@/types";
 
+// per-lambda-instance: multiple warm lambdas each maintain a separate map
+const recentOrders = new Map<string, { result: unknown; expiresAt: number }>();
+const ORDER_DEDUPE_TTL = 5 * 60 * 1000;
+
+function orderFingerprint(args: Record<string, unknown>): string {
+  const cart = ((args.cart ?? []) as Array<{ product_id: string }>)
+    .slice()
+    .sort((a, b) => a.product_id.localeCompare(b.product_id));
+  return JSON.stringify({
+    cart,
+    recipient: args.recipient,
+    delivery: args.delivery,
+    sender: args.sender,
+    gift_message: args.gift_message,
+  });
+}
+
 async function callMcp(name: string, params: Record<string, unknown>) {
   try {
     const result = await mcpClient.callTool(name, params);
@@ -98,6 +115,24 @@ export async function executeServerTool(
   if (name === "kapruka_create_order") {
     const authError = checkOrderAuthorization(args, serverCart);
     if (authError) return authError;
+
+    const now = Date.now();
+    for (const [k, v] of recentOrders) {
+      if (v.expiresAt <= now) recentOrders.delete(k);
+    }
+
+    const key = orderFingerprint(args);
+    const deduped = recentOrders.get(key);
+    if (deduped) {
+      console.log("[MCP] kapruka_create_order DEDUPED");
+      return deduped.result;
+    }
+
+    const result = await callMcp(name, args);
+    if (!(result !== null && typeof result === "object" && "error" in result)) {
+      recentOrders.set(key, { result, expiresAt: Date.now() + ORDER_DEDUPE_TTL });
+    }
+    return result;
   }
 
   if (name === "kapruka_batch_search") {

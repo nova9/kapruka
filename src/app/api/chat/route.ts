@@ -11,10 +11,10 @@ export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function POST(req: Request) {
-  // const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
-  // if (!rateLimit(ip, 100, 60_000)) {
-  //   return new Response("Too many requests", { status: 429 });
-  // }
+  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
+  if (!rateLimit(ip, 30, 60_000)) {
+    return new Response("Too many requests", { status: 429 });
+  }
 
   const { messages, cart, gift_message, delivery_fee, addresses } = (await req.json()) as {
     messages: UIMessage[];
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     model: anthropic(model),
     system: agentInstructions(cartContext, "chat", addressContext),
     messages: modelMessages,
-    stopWhen: stepCountIs(12),
+    stopWhen: stepCountIs(16),
     providerOptions: {
       anthropic: {
         thinking: { type: "enabled", budgetTokens: 5000 },

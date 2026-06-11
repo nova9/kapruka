@@ -1,15 +1,35 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import type { UIMessage } from "ai";
 import { AGENT } from "@/lib/persona";
 import { useCart } from "@/hooks/useCart";
 import MessageBubble from "./MessageBubble";
+import SuggestedReplies from "./SuggestedReplies";
 import CartSidebar from "../Cart/CartSidebar";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Greeting from "./Greeting";
 import Composer from "./Composer";
 import { useAgent } from "@/hooks/useAgent";
+
+const INTERACTIVE_TOOLS = new Set(["ask_clarifying_questions", "ask_gift_message"]);
+
+function endedMidTask(message: UIMessage): boolean {
+  const parts = message.parts ?? [];
+  let lastToolIdx = -1;
+  let lastTextIdx = -1;
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    if (p.type.startsWith("tool-") && !INTERACTIVE_TOOLS.has(p.type.slice(5))) {
+      lastToolIdx = i;
+    }
+    if (p.type === "text" && p.text.trim()) {
+      lastTextIdx = i;
+    }
+  }
+  return lastToolIdx >= 0 && lastToolIdx > lastTextIdx;
+}
 
 export default function ChatInterface() {
   const { cartCount, total, toggleCart } = useCart();
@@ -23,6 +43,8 @@ export default function ChatInterface() {
     isStreaming,
     send,
     stop,
+    error,
+    retry,
     appendVoiceMessage,
     appendVoiceToolResult,
     conversationId,
@@ -34,6 +56,11 @@ export default function ChatInterface() {
   } = useAgent();
 
   const lastMsg = messages[messages.length - 1];
+  const showContinue =
+    !isStreaming &&
+    !error &&
+    lastMsg?.role === "assistant" &&
+    endedMidTask(lastMsg);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -120,6 +147,28 @@ export default function ChatInterface() {
             <div ref={messagesEndRef} />
           </div>
         </div>
+
+        {/* "Continue" chip when the agent stopped mid-task at the step cap */}
+        <SuggestedReplies
+          visible={showContinue}
+          suggestions={["Continue"]}
+          onSelect={send}
+        />
+
+        {/* Error banner */}
+        {error && !isStreaming && (
+          <div className="px-3 sm:px-6 pb-2 mx-auto w-full max-w-190">
+            <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 shadow-card text-[13px] text-red-700">
+              <span>Something went wrong while replying.</span>
+              <button
+                onClick={retry}
+                className="shrink-0 px-3 py-1 rounded-full bg-red-100 border border-red-200 text-[12px] font-semibold text-red-700 hover:bg-red-200 transition-colors"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Composer */}
         <Composer

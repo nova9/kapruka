@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@/lib/server/rate-limit";
 
 const SESSION_CONFIG = JSON.stringify({
   session: {
@@ -13,6 +14,11 @@ const SESSION_CONFIG = JSON.stringify({
 });
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+  if (!rateLimit(ip, 10, 60_000)) {
+    return new NextResponse("Too many requests", { status: 429 });
+  }
+
   const sdp = await req.text();
 
   // Step 1: mint an ephemeral key
