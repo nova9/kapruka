@@ -83,7 +83,7 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
 
   kapruka_create_order: {
     description:
-      "Create a guest checkout order and return a pay link. Only call after the user has explicitly confirmed they want to place the order.",
+      "Create a guest checkout order and return a pay link. Only call after the user has explicitly confirmed they want to place the order. For self-purchases the buyer is both recipient and sender — pass the buyer's name/phone as recipient and the same name as sender.name.",
     inputSchema: z.object({
       cart: z.array(cartItem).min(1).max(30),
       recipient: z.object({
@@ -202,7 +202,7 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
 
   kapruka_batch_search: {
     description:
-      "Run 2–4 product searches in parallel and return a single merged, ranked shortlist. Use this instead of kapruka_search_products whenever the user expresses a gifting occasion, recipient, or intent (e.g. 'birthday gift for a 10-year-old boy under 3000 rupees', 'anniversary surprise for my wife that delivers by Friday'). Pick 2–4 queries that cover different product angles the recipient would enjoy. Pass budget_max when the user gives a price limit.",
+      "Run 2–4 product searches in parallel and return a single merged, ranked shortlist. Use this for any multi-angle request: gifting occasions ('birthday gift for a 10-year-old boy under 3000 rupees') OR multi-need self-purchases ('weekly groceries for a family of 4', 'things I need for a new apartment'). Pick 2–4 queries covering different product angles. Pass budget_max when the user gives a price limit.",
     inputSchema: z.object({
       queries: z
         .array(z.string().min(3))
@@ -219,7 +219,7 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
 
   ask_gift_message: {
     description:
-      "Present a beautiful parchment gift-message card in the chat for the user to write their personal note. Use this for gift orders when no gift message is already in the cart context.",
+      "Present a beautiful parchment gift-message card in the chat for the user to write their personal note. Use this for gift orders when no gift message is already in the cart context. Gift mode ONLY — never call this when the user is shopping for themselves.",
     inputSchema: z.object({
       intro: z
         .string()

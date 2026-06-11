@@ -3,21 +3,24 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-const ALL_SUGGESTIONS = [
+const EVERYDAY_SUGGESTIONS = [
+  "🛒 I need to order my weekly groceries",
+  "🔌 Find me a phone charger under Rs 5000",
+  "🎧 Show me wireless earbuds under Rs 10000",
+  "🧴 I'm out of shampoo and body wash — restock me",
+  "🍚 Order a 5kg bag of rice and some dhal",
+  "💻 What laptop accessories do you have?",
+  "🏠 I need new bedsheets for a double bed",
+  "📦 Can you help me track my existing order?",
+];
+
+const GIFT_SUGGESTIONS = [
   "🎂 Can you find a birthday gift for my amma under Rs 3000?",
   "💐 What flowers can I send as a surprise for someone special?",
   "🎁 Do you have gift hampers under Rs 5000?",
-  "📦 Can you help me track my existing order?",
   "🍰 What cakes can I order for a party?",
   "🧸 Can you suggest a toy for a child under Rs 2000?",
   "💍 What anniversary gifts are available under Rs 10000?",
-  "🌸 Can I get a flower bouquet delivered for Mother's Day?",
-  "🎓 What are some good graduation gift ideas?",
-  "🏠 Can you recommend a housewarming gift under Rs 5000?",
-  "🍫 Do you have chocolate gift boxes available?",
-  "👶 What baby shower gifts can I get under Rs 3000?",
-  "📱 What tech gifts would suit a teenager?",
-  "🎊 Can you help me order party supplies?",
 ];
 
 function pickRandom<T>(arr: T[], n: number): T[] {
@@ -32,7 +35,7 @@ interface Props {
 }
 
 export default function SuggestedReplies({ onSelect, visible, suggestions, className = "px-4 sm:px-6 py-2 mx-auto w-full max-w-190" }: Props) {
-  const [defaultSuggestions] = useState(() => pickRandom(ALL_SUGGESTIONS, 4));
+  const [defaultSuggestions] = useState(() => [...pickRandom(EVERYDAY_SUGGESTIONS, 2), ...pickRandom(GIFT_SUGGESTIONS, 2)]);
   const displayed = suggestions ?? defaultSuggestions;
   return (
     <AnimatePresence>

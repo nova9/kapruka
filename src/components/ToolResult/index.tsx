@@ -22,7 +22,7 @@ const TOOL_LABELS: Record<string, string> = {
   ask_gift_message: "Preparing your gift card…",
   ask_clarifying_questions: "Gathering your preferences…",
   kapruka_search_products: "Searching catalog…",
-  kapruka_batch_search: "Searching across gift ideas…",
+  kapruka_batch_search: "Searching across categories…",
   kapruka_get_product: "Getting product details…",
   kapruka_list_categories: "Loading categories…",
   kapruka_list_delivery_cities: "Finding cities…",

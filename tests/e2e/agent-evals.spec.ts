@@ -45,6 +45,24 @@ test("clarifying questions: vague gift query returns clarifying card", async ({ 
   await expect(chips.first()).toBeVisible();
 });
 
+test("self-purchase: everyday query gets products without gift questions", async ({ page }) => {
+  await page.goto("/");
+
+  const input = page.getByRole("textbox");
+  await expect(input).toBeVisible({ timeout: 15_000 });
+
+  await input.fill("I need a phone charger for my laptop, under 5000 rupees");
+  await input.press("Enter");
+
+  // Product cards should render
+  const cards = page.locator('[data-testid="product-card"]');
+  await expect(cards.first()).toBeVisible({ timeout: 90_000 });
+
+  // The agent must not run the gifting flow for a self-purchase
+  const pageText = (await page.locator("body").textContent()) ?? "";
+  expect(pageText.toLowerCase()).not.toMatch(/who is (this|it) for|what's the occasion|gift message/);
+});
+
 test("city canonicalization: 'Candy' resolves to Kandy or triggers clarification", async ({ page }) => {
   await page.goto("/");
 

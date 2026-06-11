@@ -54,7 +54,7 @@ export default function VoiceOverlay({
               </p>
               {transcript && (
                 <p className="text-[12px] text-inksoft truncate mt-0.5">
-                  You said: "{transcript}"
+                  You said: &quot;{transcript}&quot;
                 </p>
               )}
             </div>

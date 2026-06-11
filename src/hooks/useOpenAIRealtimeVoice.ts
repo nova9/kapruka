@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useCartStore } from "@/store/cart";
 import { buildCartContext, agentInstructions } from "@/lib/instructions";
 import { REALTIME_TOOLS } from "@/tools/specs";
@@ -29,7 +29,9 @@ export function useOpenAIRealtimeVoice(
   const pendingCallsRef = useRef<Map<string, PendingCall>>(new Map());
   const assistantTranscriptRef = useRef<string>("");
   const callbacksRef = useRef(callbacks);
-  callbacksRef.current = callbacks;
+  useEffect(() => {
+    callbacksRef.current = callbacks;
+  });
 
   const { acquireMic, bindOutputTrack, release, analyserRef } = useMicAudio();
 

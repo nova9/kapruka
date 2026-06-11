@@ -10,7 +10,7 @@ export const STARTER_PROMPTS = [
   { emoji: "🌸", label: "Flowers", sub: "Fresh bouquets delivered" },
   { emoji: "🍰", label: "Cakes", sub: "For every occasion" },
   { emoji: "🎁", label: "Hampers", sub: "Curated gift sets" },
-  { emoji: "🎧", label: "Electronics", sub: "Gadgets & tech gifts" },
+  { emoji: "🎧", label: "Electronics", sub: "Gadgets & tech" },
 ];
 
 export function categoryPrompt(label: string) {

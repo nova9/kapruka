@@ -127,7 +127,7 @@ export default function CartSidebar() {
                     </div>
                     <p className="text-[14px]">Your cart is empty.</p>
                     <p className="text-[13px] mt-1">
-                      Ask {AGENT.name} for a gift idea!
+                      Ask {AGENT.name} to find anything on Kapruka!
                     </p>
                   </div>
                 </div>

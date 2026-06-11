@@ -1,6 +1,5 @@
 "use client";
 
-import { KapuAvatar } from "@/components/shared/KapuAvatar";
 import { AGENT } from "@/lib/persona";
 import SuggestedReplies from "./SuggestedReplies";
 
@@ -15,9 +14,9 @@ export default function Greeting({ onSend }: { onSend: (t: string) => void }) {
           <span className="font-display text-[18px] sm:text-[22px] leading-tight text-ink block mb-1">
             Ayubowan! I&apos;m {AGENT.name} 🌿
           </span>
-          Tell me who you&apos;re shopping for and the occasion — I&apos;ll find
-          the perfect thing and get it delivered anywhere in Sri Lanka. What are
-          we celebrating today?
+          Whatever you need — groceries, gadgets, cakes, or a gift for someone
+          special — I&apos;ll find it on Kapruka and get it delivered anywhere in
+          Sri Lanka. What can I get you today?
         </div>
         <SuggestedReplies visible onSelect={onSend} className="mt-2.5" />
       </div>

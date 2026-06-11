@@ -32,10 +32,10 @@ const PAGE_TITLE = `${AGENT.name} - Kapruka Shopping Concierge`;
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description:
-    "Your AI-powered personal shopping concierge for Kapruka.com. Find perfect gifts, check delivery, and checkout — all in one chat.",
+    "Your AI-powered personal shopping concierge for Kapruka.com. Groceries, electronics, gifts and more — search, check delivery, and checkout, all in one chat.",
   openGraph: {
     title: PAGE_TITLE,
-    description: "AI-powered gift finder and shopping assistant for Kapruka.com",
+    description: "AI-powered shopping assistant for Kapruka.com — everyday essentials to gifts",
   },
 };
 
