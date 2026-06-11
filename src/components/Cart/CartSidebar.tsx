@@ -247,14 +247,16 @@ export default function CartSidebar() {
                     LKR {sub.toLocaleString()}
                   </span>
                 </div>
-                {delivery_fee !== null && (
-                  <div className="flex justify-between text-[13.5px] text-inksoft mb-2.5">
-                    <span>Delivery</span>
+                <div className="flex justify-between text-[13.5px] text-inksoft mb-2.5">
+                  <span>Delivery</span>
+                  {delivery_fee !== null ? (
                     <span className="text-ink font-medium">
                       LKR {delivery_fee.toLocaleString()}
                     </span>
-                  </div>
-                )}
+                  ) : (
+                    <span className="text-inksoft italic">Calculated at checkout</span>
+                  )}
+                </div>
                 <div className="flex justify-between text-[16px] font-bold text-ink border-t border-line pt-2.5">
                   <span>Total</span>
                   <span>LKR {(sub + (delivery_fee ?? 0)).toLocaleString()}</span>
