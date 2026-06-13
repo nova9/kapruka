@@ -39,6 +39,7 @@ export default function Composer({
     speaking,
     transcript,
     toggleVoice,
+    sendText,
     analyserRef,
   } = useOpenAIRealtimeVoice(
     {
@@ -52,6 +53,24 @@ export default function Composer({
   function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      if (listening) {
+        if (value.trim()) {
+          sendText(value);
+          setValue("");
+        }
+      } else {
+        onSend();
+      }
+    }
+  }
+
+  function handleSend() {
+    if (listening) {
+      if (value.trim()) {
+        sendText(value);
+        setValue("");
+      }
+    } else {
       onSend();
     }
   }
@@ -60,31 +79,24 @@ export default function Composer({
     <div className="shrink-0">
       <div className="mx-auto w-full max-w-190 px-3 sm:px-6 pt-2.5 pb-3 sm:pt-3 sm:pb-4">
         <div className="bg-surface rounded-2xl border border-line shadow-card focus-within:border-brand/50 focus-within:shadow-lift transition-all px-3 pt-3 pb-2">
-          {connecting ? (
-            /* Connecting state */
+          {/* Voice status bar — shown above the textarea when active */}
+          {(connecting || listening) && (
             <div className="flex items-center gap-3 mb-2 min-h-9">
-              <div className="shrink-0 w-8 h-8 rounded-full bg-brand/10 grid place-items-center">
-                <svg
-                  className="animate-spin text-brand"
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path strokeLinecap="round" d="M12 2a10 10 0 0 1 10 10" />
-                </svg>
-              </div>
-              <p className="text-[13px] font-semibold text-ink leading-tight">
-                Connecting…
-              </p>
-            </div>
-          ) : listening ? (
-            /* Voice mode — replaces the textarea */
-            <div className="flex items-center gap-3 mb-2 min-h-9">
-              {/* Animated indicator */}
-              {speaking ? (
+              {connecting ? (
+                <div className="shrink-0 w-8 h-8 rounded-full bg-brand/10 grid place-items-center">
+                  <svg
+                    className="animate-spin text-brand"
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path strokeLinecap="round" d="M12 2a10 10 0 0 1 10 10" />
+                  </svg>
+                </div>
+              ) : speaking ? (
                 <div className="relative shrink-0 w-8 h-8 rounded-full bg-brand/10 grid place-items-center">
                   <span className="absolute inset-0 rounded-full bg-brand/20 animate-ping" />
                   <svg
@@ -100,31 +112,30 @@ export default function Composer({
               ) : (
                 <MicWave analyserRef={analyserRef} />
               )}
-
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-ink leading-tight">
-                  {speaking ? `${AGENT.name} is speaking…` : "Listening…"}
+                  {connecting ? "Connecting…" : speaking ? `${AGENT.name} is speaking…` : "Listening…"}
                 </p>
-                {transcript && (
+                {!connecting && transcript && (
                   <p className="text-[12px] text-inksoft truncate mt-0.5">
                     You said: &quot;{transcript}&quot;
                   </p>
                 )}
               </div>
             </div>
-          ) : (
-            /* Normal text input */
-            <textarea
-              ref={taRef}
-              rows={1}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={handleKey}
-              disabled={disabled}
-              placeholder={`Ask ${AGENT.name} anything…`}
-              className="w-full min-w-0 resize-none bg-transparent outline-none text-[15px] text-ink placeholder:text-inksoft leading-relaxed disabled:opacity-60 mb-2"
-            />
           )}
+
+          {/* Text input — always visible so users can type accurate info (city, address, etc.) */}
+          <textarea
+            ref={taRef}
+            rows={1}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKey}
+            disabled={connecting}
+            placeholder={listening ? "Type city, address, or any details here…" : `Ask ${AGENT.name} anything…`}
+            className="w-full min-w-0 resize-none bg-transparent outline-none text-[15px] text-ink placeholder:text-inksoft leading-relaxed disabled:opacity-60 mb-2"
+          />
 
           {/* Toolbar row */}
           <div className="flex items-center gap-2">
@@ -140,39 +151,28 @@ export default function Composer({
               onClick={toggleVoice}
             />
 
-            {!listening &&
-              (disabled ? (
-                <button
-                  onClick={onStop}
-                  className="shrink-0 w-9 h-9 rounded-xl grid place-items-center bg-inksoft/15 text-ink hover:bg-inksoft/25 transition-colors"
-                  aria-label="Stop"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                  >
-                    <rect x="5" y="5" width="14" height="14" rx="2" />
-                  </svg>
-                </button>
-              ) : (
-                <button
-                  onClick={onSend}
-                  disabled={!value.trim()}
-                  className="shrink-0 w-9 h-9 rounded-xl grid place-items-center bg-brand text-white disabled:opacity-30 hover:bg-branddeep transition-colors"
-                  aria-label="Send"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="18"
-                    height="18"
-                    fill="currentColor"
-                  >
-                    <path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l11 2-11 2z" />
-                  </svg>
-                </button>
-              ))}
+            {disabled && !listening ? (
+              <button
+                onClick={onStop}
+                className="shrink-0 w-9 h-9 rounded-xl grid place-items-center bg-inksoft/15 text-ink hover:bg-inksoft/25 transition-colors"
+                aria-label="Stop"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <rect x="5" y="5" width="14" height="14" rx="2" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                onClick={handleSend}
+                disabled={!value.trim() || connecting}
+                className="shrink-0 w-9 h-9 rounded-xl grid place-items-center bg-brand text-white disabled:opacity-30 hover:bg-branddeep transition-colors"
+                aria-label="Send"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l11 2-11 2z" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </div>

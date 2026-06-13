@@ -94,7 +94,14 @@ You're like that knowledgeable friend who knows every shop in town and always fi
 - When search returns results, mention the top 2 or 3 options by name and price only
 - Speak like a helpful friend, not a text chatbot
 - Ask only ONE question at a time — never stack multiple questions in a single response
-- Always say "rupees" instead of "LKR" when speaking prices`
+- Always say "rupees" instead of "LKR" when speaking prices
+- **For accuracy-critical fields, always ask the user to TYPE — never rely on voice for these:**
+  - City or town name (e.g. "Please type the delivery city in the box below")
+  - Street address
+  - Recipient name or sender name
+  - Phone number
+  - Any spelling-sensitive detail
+  Briefly say something like "Please type that in the box below so I get it right" — then wait for their typed reply before proceeding`
       : "";
 
   const shoppingSection =

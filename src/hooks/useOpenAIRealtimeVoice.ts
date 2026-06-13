@@ -257,6 +257,23 @@ export function useOpenAIRealtimeVoice(
     await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
   }
 
+  function sendText(text: string) {
+    const dc = dcRef.current;
+    if (!dc || dc.readyState !== "open" || !text.trim()) return;
+    dc.send(
+      JSON.stringify({
+        type: "conversation.item.create",
+        item: {
+          type: "message",
+          role: "user",
+          content: [{ type: "input_text", text: text.trim() }],
+        },
+      }),
+    );
+    dc.send(JSON.stringify({ type: "response.create" }));
+    callbacksRef.current?.onUserMessage?.(text.trim());
+  }
+
   function stop() {
     dcRef.current?.close();
     pcRef.current?.close();
@@ -287,6 +304,7 @@ export function useOpenAIRealtimeVoice(
     speaking,
     transcript,
     toggleVoice,
+    sendText,
     analyserRef,
   };
 }
