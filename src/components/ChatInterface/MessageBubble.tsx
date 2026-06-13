@@ -45,6 +45,21 @@ function isToolPart(part: MessagePart): part is ToolUIPart | DynamicToolUIPart {
   return part.type === "dynamic-tool" || part.type.startsWith("tool-");
 }
 
+function toolName(part: ToolUIPart | DynamicToolUIPart): string {
+  return part.type === "dynamic-tool" ? part.toolName : part.type.replace(/^tool-/, "");
+}
+
+// Tools that mount for side effects only — ToolResultView returns null for these.
+const SILENT_TOOLS = new Set([
+  "cart_add_item",
+  "cart_remove_item",
+  "cart_clear",
+  "cart_set_delivery_fee",
+  "address_book_save",
+  "kapruka_list_categories",
+  "kapruka_list_delivery_cities",
+]);
+
 export default function MessageBubble({
   message,
   isLastAssistant,
@@ -102,12 +117,21 @@ export default function MessageBubble({
 
   const isReasoningStreaming = !!(isLastAssistant && isLoading && !hasTextContent);
 
+  const hasVisibleContent = parts.some(
+    (p) =>
+      (p.type === "text" && p.text.trim()) ||
+      (p.type === "reasoning" && (p as { text?: string }).text?.trim()) ||
+      (isToolPart(p) && !SILENT_TOOLS.has(toolName(p))),
+  );
+
   /* --- agent message --- */
   return (
     <div className="max-w-160 animate-rise">
-      <div className="text-[12px] font-semibold text-inksoft mb-1.5 tracking-wide">
-        {AGENT.name}
-      </div>
+      {hasVisibleContent && (
+        <div className="text-[12px] font-semibold text-inksoft mb-1.5 tracking-wide">
+          {AGENT.name}
+        </div>
+      )}
         <div className="space-y-3">
           {parts.map((part, i) => {
             if (part.type === "reasoning") {
